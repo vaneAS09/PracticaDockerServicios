@@ -1,0 +1,24 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+	if Vagrant.has_plugin? "vagrant-vbguest"
+		config.vbguest.no_install  = true
+		config.vbguest.auto_update = false
+		config.vbguest.no_remote   = true
+	end
+	config.vm.define :servidorDocker do |servidorDocker|
+		servidorDocker.vm.box = "bento/ubuntu-20.04"
+		servidorDocker.vm.network :private_network, ip: "192.168.100.4"
+		servidorDocker.vm.hostname = "servidorDocker"
+		servidorDocker.vm.provision "file", source: "Dockerfile", destination: "/home/vagrant/Dockerfile"
+		servidorDocker.vm.provision "file", source: "vsftpd.sh", destination: "/home/vagrant/vsftpd.sh"
+		servidorDocker.vm.provision "file", source: "vsftpd.conf", destination: "/home/vagrant/vsftpd.conf"
+		servidorDocker.vm.provision "shell", path: "script_docker.sh"
+		servidorDocker.vm.provider "virtualbox" do |v|
+			v.name = "Servidordocker_ftp"
+			v.memory = 2048
+			v.cpus = 2
+		end
+	end
+end
